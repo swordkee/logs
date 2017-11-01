@@ -16,6 +16,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+	"f.in/v/logs/logwriter"
+	"github.com/sirupsen/logrus"
 )
 
 // It is allowed to change default values listed above. Change it before calling NewLogWriter().
@@ -644,4 +646,35 @@ func defaultColdNameFormatter(uid, ext string, d time.Duration) string {
 	}
 
 	return fmt.Sprintf("%s-%s.%s", uid, time.Now().Format(tformat), ext)
+}
+func main() {
+
+	lw, err := logwriter.NewLogWriter("mywebserver",
+		&logwriter.Config{
+			BufferSize:          1024 * 1024,       // 1 MB
+			BufferFlushInterval: 3 * time.Second,   // flush buffer every 3 sec
+			FreezeInterval:      1 * time.Hour,     // create new log every hour
+			HotMaxSize:          100 * 1024 * 1024, // or when hot file size over 100 MB
+			HotPath:             "/var/log/myweb",
+			ColdPath:            "/var/log/myweb/arch",
+			Mode:                logwriter.ProductionMode,
+		},
+		false, // do not freeze hot file if exists
+		nil)
+	if err != nil {
+		// Error handling
+	}
+
+	var log = logrus.New()
+	log.Out = lw
+
+	log.WithFields(logrus.Fields{"animal": "walrus",
+		"size": 10,
+	}).Info("A group of walrus emerges from the ocean")
+
+	if err := lw.Close(); err != nil {
+		// Error handling
+	}
+
+	return
 }

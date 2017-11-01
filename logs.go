@@ -81,6 +81,23 @@ func (l logger) SetOut(out io.Writer) {
 	l.entry.Logger.Out = out
 }
 
+func (l logger) SetHook(hookType string) {
+	if hookType == "syslog" {
+
+	} else if hookType == "files" {
+		//files, _ := filepath.Abs(os.Args[0])
+		//appPath := filepath.Dir(file)
+		//baseLogger.entry.Logger.AddHook(file.NewHook(appPath + "/logs/" + files + ".log"))
+	}
+}
+func (l logger) SetFormat(format string) {
+	if format == "text" {
+		l.entry.Logger.Formatter = &logrus.TextFormatter{FullTimestamp: true}
+	} else {
+		l.entry.Logger.Formatter = &logrus.JSONFormatter{}
+	}
+}
+
 // Debug logs a message at level Debug on the standard logger.
 func (l logger) Debug(args ...interface{}) {
 	l.sourced().Debug(args...)
