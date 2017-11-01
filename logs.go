@@ -5,7 +5,6 @@ import (
 	"io"
 	"runtime"
 	"strings"
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -50,6 +49,9 @@ type Logger interface {
 
 	Fatal(...interface{})
 	Fatalln(...interface{})
+
+	Panic(...interface{})
+	Panicln(...interface{})
 
 	With(key string, value interface{}) Logger
 	WithError(err error) Logger
@@ -129,6 +131,16 @@ func (l logger) Fatalln(args ...interface{}) {
 	l.sourced().Fatalln(args...)
 }
 
+// Panic logs a message at level Panic on the standard logger.
+func (l logger) Panic(args ...interface{}) {
+	l.sourced().Panic(args...)
+}
+
+// Panicln logs a message at level Panic on the standard logger.
+func (l logger) Panicln(args ...interface{}) {
+	l.sourced().Panicln(args...)
+}
+
 // sourced adds a source field to the logger that contains
 // the file name and line where the logging happened.
 func (l logger) sourced() *logrus.Entry {
@@ -150,7 +162,7 @@ var origLogger = logrus.New()
 var baseLogger = logger{entry: logrus.NewEntry(origLogger)}
 
 // New returns a new logger.
-func NewLogs() Logger {
+func New() Logger {
 	return logger{entry: logrus.NewEntry(origLogger)}
 }
 
@@ -167,6 +179,24 @@ func SetLevel(level Level) {
 // SetOut sets the output destination base logger
 func SetOut(out io.Writer) {
 	baseLogger.entry.Logger.Out = out
+}
+
+func SetHook(hookType string) {
+	if hookType == "syslog" {
+
+	} else if hookType == "files" {
+		//files, _ := filepath.Abs(os.Args[0])
+		//appPath := filepath.Dir(file)
+		//baseLogger.entry.Logger.AddHook(file.NewHook(appPath + "/logs/" + files + ".log"))
+	}
+}
+
+func SetFormat(format string) {
+	if format == "text" {
+		baseLogger.entry.Logger.Formatter = &logrus.TextFormatter{FullTimestamp: true}
+	} else {
+		baseLogger.entry.Logger.Formatter = &logrus.JSONFormatter{}
+	}
 }
 
 // With attaches a key,value pair to a logger.
@@ -227,4 +257,14 @@ func Fatal(args ...interface{}) {
 // Fatalln logs a message at level Fatal on the standard logger.
 func Fatalln(args ...interface{}) {
 	baseLogger.sourced().Fatalln(args...)
+}
+
+// Panic logs a message at level Fatal on the standard logger.
+func Panic(args ...interface{}) {
+	baseLogger.sourced().Panic(args...)
+}
+
+// Panicln logs a message at level Fatal on the standard logger.
+func Panicln(args ...interface{}) {
+	baseLogger.sourced().Panicln(args...)
 }
