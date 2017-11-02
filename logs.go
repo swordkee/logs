@@ -1,14 +1,16 @@
 package logs
 
 import (
+	"f.in/v/logs/hooks/file"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"io"
+	"log/syslog"
+	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
-	"github.com/sirupsen/logrus"
-	"f.in/v/logs/hooks/file"
-	"path/filepath"
-	"os"
+	"v/logs/hooks/rsyslog"
 )
 
 // Level describes the log severity level.
@@ -86,7 +88,12 @@ func (l logger) SetOut(out io.Writer) {
 
 func (l logger) SetHook(hookType, name string) {
 	if hookType == "syslog" {
-
+		hook, err := rsyslog.NewSyslogHook("tcp", "192.168.10.169:514", syslog.LOG_INFO, name)
+		if err != nil {
+			l.entry.Logger.Error("Unable to connect to local syslog daemon")
+		} else {
+			l.entry.Logger.AddHook(hook)
+		}
 	} else if hookType == "files" {
 		l.entry.Logger.AddHook(file.NewFileHook(selfDir() + "/logs/" + name + ".log"))
 	}
@@ -201,7 +208,12 @@ func SetOut(out io.Writer) {
 
 func SetHook(hookType, name string) {
 	if hookType == "syslog" {
-
+		hook, err := rsyslog.NewSyslogHook("tcp", "192.168.10.169:514", syslog.LOG_INFO, name)
+		if err != nil {
+			baseLogger.Error("Unable to connect to local syslog daemon")
+		} else {
+			baseLogger.entry.Logger.AddHook(hook)
+		}
 	} else if hookType == "files" {
 		baseLogger.entry.Logger.AddHook(file.NewFileHook(selfDir() + "/logs/" + name + ".log"))
 	}
