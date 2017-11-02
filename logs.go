@@ -6,6 +6,9 @@ import (
 	"runtime"
 	"strings"
 	"github.com/sirupsen/logrus"
+	"f.in/v/logs/hooks/file"
+	"path/filepath"
+	"os"
 )
 
 // Level describes the log severity level.
@@ -81,13 +84,11 @@ func (l logger) SetOut(out io.Writer) {
 	l.entry.Logger.Out = out
 }
 
-func (l logger) SetHook(hookType string) {
+func (l logger) SetHook(hookType, name string) {
 	if hookType == "syslog" {
 
 	} else if hookType == "files" {
-		//files, _ := filepath.Abs(os.Args[0])
-		//appPath := filepath.Dir(file)
-		//baseLogger.entry.Logger.AddHook(file.NewHook(appPath + "/logs/" + files + ".log"))
+		l.entry.Logger.AddHook(file.NewFileHook(selfDir() + "/logs/" + name + ".log"))
 	}
 }
 func (l logger) SetFormat(format string) {
@@ -198,13 +199,11 @@ func SetOut(out io.Writer) {
 	baseLogger.entry.Logger.Out = out
 }
 
-func SetHook(hookType string) {
+func SetHook(hookType, name string) {
 	if hookType == "syslog" {
 
 	} else if hookType == "files" {
-		//files, _ := filepath.Abs(os.Args[0])
-		//appPath := filepath.Dir(file)
-		//baseLogger.entry.Logger.AddHook(file.NewHook(appPath + "/logs/" + files + ".log"))
+		baseLogger.entry.Logger.AddHook(file.NewFileHook(selfDir() + "/logs/" + name + ".log"))
 	}
 }
 
@@ -284,4 +283,8 @@ func Panic(args ...interface{}) {
 // Panicln logs a message at level Fatal on the standard logger.
 func Panicln(args ...interface{}) {
 	baseLogger.sourced().Panicln(args...)
+}
+func selfDir() string {
+	path, _ := filepath.Abs(os.Args[0])
+	return filepath.Dir(path)
 }
