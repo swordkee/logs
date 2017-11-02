@@ -30,9 +30,9 @@ func (hook *FileHook) Fire(entry *logrus.Entry) (err error) {
 	}
 	switch entry.Level {
 	case logrus.PanicLevel:
-		fallthrough
+		return hook.W.WriteMsg(message, LevelPanic)
 	case logrus.FatalLevel:
-		fallthrough
+		return hook.W.WriteMsg(message, LevelFatal)
 	case logrus.ErrorLevel:
 		return hook.W.WriteMsg(message, LevelError)
 	case logrus.WarnLevel:

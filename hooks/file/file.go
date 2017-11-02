@@ -21,6 +21,7 @@ const (
 	LevelWarn
 	LevelError
 	LevelFatal
+	LevelPanic
 	LevelOff
 )
 
@@ -32,6 +33,7 @@ var (
 		LevelWarn:  "[WARN]",
 		LevelError: "[ERROR]",
 		LevelFatal: "[FATAL]",
+		LevelPanic: "[Panic]",
 	}
 )
 
