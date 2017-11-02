@@ -86,9 +86,9 @@ func (l logger) SetOut(out io.Writer) {
 	l.entry.Logger.Out = out
 }
 
-func (l logger) SetHook(hookType, name string) {
+func (l logger) SetHook(hookType, name, raddr string) {
 	if hookType == "syslog" {
-		hook, err := rsyslog.NewSyslogHook("tcp", "192.168.10.169:514", syslog.LOG_INFO, name)
+		hook, err := rsyslog.NewSyslogHook("tcp", raddr, syslog.LOG_INFO, name)
 		if err != nil {
 			l.entry.Logger.Error("Unable to connect to local syslog daemon")
 		} else {
@@ -206,9 +206,9 @@ func SetOut(out io.Writer) {
 	baseLogger.entry.Logger.Out = out
 }
 
-func SetHook(hookType, name string) {
+func SetHook(hookType, name, raddr string) {
 	if hookType == "syslog" {
-		hook, err := rsyslog.NewSyslogHook("tcp", "192.168.10.169:514", syslog.LOG_INFO, name)
+		hook, err := rsyslog.NewSyslogHook("tcp", raddr, syslog.LOG_INFO, name)
 		if err != nil {
 			baseLogger.Error("Unable to connect to local syslog daemon")
 		} else {
