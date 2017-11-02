@@ -4,16 +4,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
 	"github.com/sirupsen/logrus"
-	"os/exec"
 )
 
 func NewFileHook(file string) (f *FileHook) {
-	path := strings.Split(file, "/")
-	if len(path) > 1 {
-		exec.Command("mkdir", path[0]).Run()
-	}
 	w := NewLogFile(file)
 	return &FileHook{w}
 }

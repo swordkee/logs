@@ -2,7 +2,6 @@ package file
 
 import (
 	"encoding/json"
-	//"fmt"
 	"log"
 	"os"
 	"strings"
@@ -33,7 +32,7 @@ var (
 		LevelWarn:  "[WARN]",
 		LevelError: "[ERROR]",
 		LevelFatal: "[FATAL]",
-		LevelPanic: "[Panic]",
+		LevelPanic: "[PANIC]",
 	}
 )
 
