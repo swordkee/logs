@@ -33,7 +33,7 @@ func (hook *RSyslogHook) Fire(entry *logrus.Entry) error {
 	case logrus.ErrorLevel:
 		return hook.Writer.Err("[ERROR] " + message)
 	case logrus.WarnLevel:
-		return hook.Writer.Warning(" WARN] " + message)
+		return hook.Writer.Warning("[WARN] " + message)
 	case logrus.InfoLevel:
 		return hook.Writer.Info("[INFO] " + message)
 	case logrus.DebugLevel:
