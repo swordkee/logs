@@ -2,6 +2,7 @@ package logs
 
 import (
 	"f.in/v/logs/hooks/file"
+	"f.in/v/logs/hooks/rsyslog"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"io"
@@ -10,7 +11,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"v/logs/hooks/rsyslog"
 )
 
 // Level describes the log severity level.
