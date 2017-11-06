@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"context"
-
 	"v/logs/hooks/aliyun/pb"
 	"github.com/golang/protobuf/proto"
 	"os"
@@ -18,24 +16,26 @@ const (
 	LOG_SIZE = 2.5 * 1024 * 1024 //当日志大小达到2.5M时 触发 写入 ali log 请求
 )
 
-var sigs = make(chan int, 1)
+//var sigs = make(chan int, 1)
 
 type Writer struct {
 	url          string
 	accessKey    string
 	accessSecret string
 	logStore     string
+	isAsync      bool
 	log          *pb.LogGroup
 	client       LogClient
 	lock         sync.Mutex
 }
 
-func NewWriter(url, accessKey, accessSecret, logStore, topic string, ctx context.Context) (w *Writer, err error) {
+func NewWriter(url, accessKey, accessSecret, logStore, topic string, isAsync bool) (w *Writer, err error) {
 	w = &Writer{
 		url:          url,
 		accessKey:    accessKey,
 		accessSecret: accessSecret,
 		logStore:     logStore,
+		isAsync:      isAsync,
 		log: &pb.LogGroup{
 			Topic: &topic,
 		},
@@ -44,23 +44,22 @@ func NewWriter(url, accessKey, accessSecret, logStore, topic string, ctx context
 	if err != nil {
 		return nil, err
 	}
-	go func() {
-		//保证没10分钟写一次数据
-		ticker := time.NewTicker(time.Duration(600) * time.Second)
-		defer ticker.Stop()
-		for {
-			select {
-			case <-ticker.C:
-				if len(w.log.Logs) > 0 {
-					w.DoWrite()
-				}
-			case <-ctx.Done():
-				if len(w.log.Logs) > 0 {
-					w.DoWrite()
-				}
-			}
-		}
-	}()
+	//go func() {
+	//	ticker := time.NewTicker(time.Duration(60) * time.Second)
+	//	defer ticker.Stop()
+		//for {
+		//	select {
+		//	case <-ticker.C:
+		//		if len(w.log.Logs) > 0 {
+		//			w.DoWrite()
+		//		}
+		//	case <-ctx.Done():
+		//		if len(w.log.Logs) > 0 {
+		//			w.DoWrite()
+		//		}
+		//	}
+		//}
+	//}()
 	return w, nil
 }
 
@@ -93,9 +92,13 @@ func (w *Writer) Write(log []byte) (int, error) {
 	}
 	w.log.Logs = append(w.log.Logs, newLog)
 	aliLogBytes, _ := proto.Marshal(w.log)
-
 	//ali_log 官方文档: 日志一次写入条数超过4096条 或大小超过3M, 超过则写入失败
-	if len(w.log.Logs)+1 >= LOG_NUM || len(aliLogBytes) > LOG_SIZE {
+	if len(w.log.Logs) > 0 && !w.isAsync {
+		w.lock.Unlock()
+		w.DoWrite()
+		return 0, nil
+	}
+	if w.isAsync && (len(w.log.Logs)+1 >= LOG_NUM || len(aliLogBytes) > LOG_SIZE) {
 		w.lock.Unlock()
 		w.DoWrite()
 		return 0, nil
@@ -109,7 +112,6 @@ func (w *Writer) DoWrite() {
 	w.lock.Lock()
 	n := copyAndEmpty(w.log)
 	w.lock.Unlock()
-
 	logdata, _ := proto.Marshal(n)
 	sendLog(w, &logdata, 0)
 	return

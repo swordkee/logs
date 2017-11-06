@@ -2,17 +2,12 @@ package aliyun
 
 import (
 	"github.com/sirupsen/logrus"
-	"context"
-	"io"
 	"fmt"
 	"os"
 )
 
-type WriterMap map[logrus.Level]io.Writer
-
-func NewHook(network, accessKey, accessSecret, logStore, topic string) (*AliYunHook, error) {
-	ctx, _ := context.WithCancel(context.Background())
-	writer, err := NewWriter(network, accessKey, accessSecret, logStore, topic, ctx)
+func NewHook(network, accessKey, accessSecret, logStore, topic string, isAsync bool) (*AliYunHook, error) {
+	writer, err := NewWriter(network, accessKey, accessSecret, logStore, topic, isAsync)
 	return &AliYunHook{writer}, err
 }
 
@@ -21,6 +16,7 @@ type AliYunHook struct {
 }
 
 func (hook *AliYunHook) Fire(entry *logrus.Entry) (err error) {
+	logrus.SetOutput(hook.w)
 	line, err := entry.String()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to read entry, %v", err)

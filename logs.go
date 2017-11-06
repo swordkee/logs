@@ -90,7 +90,7 @@ func (l logger) SetOut(out io.Writer) {
 func (l logger) SetHook(hookType, topic, network, logStore string) {
 	if hookType == "aliyun" {
 		hook, err := aliyun.NewHook(network,
-			"LTAIFOAIBKqTwUJG", "RwPnlI0sEVh9aAOOCtWgBWt2HGK1Tx", logStore, topic)
+			"LTAIFOAIBKqTwUJG", "RwPnlI0sEVh9aAOOCtWgBWt2HGK1Tx", logStore, topic, false)
 		if err != nil {
 			l.entry.Logger.Error("Unable to connect to local aliyun daemon")
 		} else {
@@ -218,7 +218,7 @@ func SetOut(out io.Writer) {
 
 func SetHook(hookType, topic, network, logStore string) {
 	if hookType == "aliyun" {
-		hook, err := aliyun.NewHook(network, "LTAIFOAIBKqTwUJG", "RwPnlI0sEVh9aAOOCtWgBWt2HGK1Tx", logStore, topic)
+		hook, err := aliyun.NewHook(network, "LTAIFOAIBKqTwUJG", "RwPnlI0sEVh9aAOOCtWgBWt2HGK1Tx", logStore, topic, false)
 		if err != nil {
 			baseLogger.Error("Unable to connect to local aliyun daemon")
 		} else {

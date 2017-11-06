@@ -42,14 +42,7 @@ func (hook *FileHook) Fire(entry *logrus.Entry) (err error) {
 }
 
 func (hook *FileHook) Levels() []logrus.Level {
-	return []logrus.Level{
-		logrus.PanicLevel,
-		logrus.FatalLevel,
-		logrus.ErrorLevel,
-		logrus.WarnLevel,
-		logrus.InfoLevel,
-		logrus.DebugLevel,
-	}
+	return logrus.AllLevels
 }
 
 func getMessage(entry *logrus.Entry) (message string, err error) {

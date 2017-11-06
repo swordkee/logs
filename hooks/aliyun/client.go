@@ -44,7 +44,6 @@ func NewAliLogClient(url, accessKey, accessKeySecret string) (LogClient, error) 
 	cli.credential = credential
 	cli.accessKey = accessKey
 	cli.url = url
-fmt.Println(url)
 	if 5 != len(strings.Split(url, ".")) {
 		return nil, errors.New("dlog: log url is invalid")
 	}
