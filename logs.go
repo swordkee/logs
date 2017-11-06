@@ -87,10 +87,10 @@ func (l logger) SetOut(out io.Writer) {
 	l.entry.Logger.Out = out
 }
 
-func (l logger) SetHook(hookType, name, raddr string) {
+func (l logger) SetHook(hookType, topic, network, logStore string) {
 	if hookType == "aliyun" {
-		hook, err := aliyun.NewHook("zhangmch-app.cn-beijing.log.aliyuncs.com",
-			"LTAIFOAIBKqTwUJG", "RwPnlI0sEVh9aAOOCtWgBWt2HGK1Tx", "qiamian", "app-log")
+		hook, err := aliyun.NewHook(network,
+			"LTAIFOAIBKqTwUJG", "RwPnlI0sEVh9aAOOCtWgBWt2HGK1Tx", logStore, topic)
 		if err != nil {
 			l.entry.Logger.Error("Unable to connect to local aliyun daemon")
 		} else {
@@ -98,14 +98,14 @@ func (l logger) SetHook(hookType, name, raddr string) {
 		}
 	}
 	if hookType == "syslog" {
-		hook, err := rsyslog.NewSyslogHook("tcp", raddr, syslog.LOG_INFO, name)
+		hook, err := rsyslog.NewSyslogHook("tcp", network, syslog.LOG_INFO, topic)
 		if err != nil {
 			l.entry.Logger.Error("Unable to connect to local syslog daemon")
 		} else {
 			l.entry.Logger.AddHook(hook)
 		}
 	} else if hookType == "files" {
-		l.entry.Logger.AddHook(file.NewFileHook(selfDir() + "/logs/" + name + ".log"))
+		l.entry.Logger.AddHook(file.NewFileHook(selfDir() + "/log/" + topic + ".log"))
 	}
 }
 func (l logger) SetFormat(format string) {
@@ -216,10 +216,9 @@ func SetOut(out io.Writer) {
 	baseLogger.entry.Logger.Out = out
 }
 
-func SetHook(hookType, name, raddr string) {
+func SetHook(hookType, topic, network, logStore string) {
 	if hookType == "aliyun" {
-		hook, err := aliyun.NewHook("zhangmch-app.cn-beijing.log.aliyuncs.com",
-			"LTAIFOAIBKqTwUJG", "RwPnlI0sEVh9aAOOCtWgBWt2HGK1Tx", "qiamian", "app-log")
+		hook, err := aliyun.NewHook(network, "LTAIFOAIBKqTwUJG", "RwPnlI0sEVh9aAOOCtWgBWt2HGK1Tx", logStore, topic)
 		if err != nil {
 			baseLogger.Error("Unable to connect to local aliyun daemon")
 		} else {
@@ -227,7 +226,7 @@ func SetHook(hookType, name, raddr string) {
 		}
 	}
 	if hookType == "syslog" {
-		hook, err := rsyslog.NewSyslogHook("tcp", raddr, syslog.LOG_INFO, name)
+		hook, err := rsyslog.NewSyslogHook("tcp", network, syslog.LOG_INFO, topic)
 		if err != nil {
 			baseLogger.Error("Unable to connect to local syslog daemon")
 		} else {
@@ -235,7 +234,7 @@ func SetHook(hookType, name, raddr string) {
 		}
 	}
 	if hookType == "files" {
-		baseLogger.entry.Logger.AddHook(file.NewFileHook(selfDir() + "/logs/" + name + ".log"))
+		baseLogger.entry.Logger.AddHook(file.NewFileHook(selfDir() + "/log/" + topic + ".log"))
 	}
 }
 
