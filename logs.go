@@ -2,15 +2,16 @@ package logs
 
 import (
 	"f.in/v/logs/hooks/file"
-	"f.in/v/logs/hooks/rsyslog"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	rsyslog "github.com/sirupsen/logrus/hooks/syslog"
 	"io"
 	"log/syslog"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"v/logs/hooks/aliyun"
 )
 
 // Level describes the log severity level.
@@ -87,6 +88,15 @@ func (l logger) SetOut(out io.Writer) {
 }
 
 func (l logger) SetHook(hookType, name, raddr string) {
+	if hookType == "aliyun" {
+		hook, err := aliyun.NewHook("zhangmch-app.cn-beijing.log.aliyuncs.com",
+			"LTAIFOAIBKqTwUJG", "RwPnlI0sEVh9aAOOCtWgBWt2HGK1Tx", "qiamian", "app-log")
+		if err != nil {
+			l.entry.Logger.Error("Unable to connect to local aliyun daemon")
+		} else {
+			l.entry.Logger.AddHook(hook)
+		}
+	}
 	if hookType == "syslog" {
 		hook, err := rsyslog.NewSyslogHook("tcp", raddr, syslog.LOG_INFO, name)
 		if err != nil {
@@ -207,6 +217,15 @@ func SetOut(out io.Writer) {
 }
 
 func SetHook(hookType, name, raddr string) {
+	if hookType == "aliyun" {
+		hook, err := aliyun.NewHook("zhangmch-app.cn-beijing.log.aliyuncs.com",
+			"LTAIFOAIBKqTwUJG", "RwPnlI0sEVh9aAOOCtWgBWt2HGK1Tx", "qiamian", "app-log")
+		if err != nil {
+			baseLogger.Error("Unable to connect to local aliyun daemon")
+		} else {
+			baseLogger.entry.Logger.AddHook(hook)
+		}
+	}
 	if hookType == "syslog" {
 		hook, err := rsyslog.NewSyslogHook("tcp", raddr, syslog.LOG_INFO, name)
 		if err != nil {
@@ -214,7 +233,8 @@ func SetHook(hookType, name, raddr string) {
 		} else {
 			baseLogger.entry.Logger.AddHook(hook)
 		}
-	} else if hookType == "files" {
+	}
+	if hookType == "files" {
 		baseLogger.entry.Logger.AddHook(file.NewFileHook(selfDir() + "/logs/" + name + ".log"))
 	}
 }
