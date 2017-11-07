@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"v/logs/hooks/aliyun/pb"
+	"f.in/v/logs/hooks/aliyun/pb"
 	"github.com/golang/protobuf/proto"
 	"os"
 )
