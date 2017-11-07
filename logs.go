@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"v/logs/hooks/aliyun"
+	"f.in/v/logs/hooks/aliyun"
 )
 
 // Level describes the log severity level.
