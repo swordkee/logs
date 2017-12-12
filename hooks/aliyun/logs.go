@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	LOG_NUM  = 200               // 当日志条数达到 200条时 触发 写入ali log 请求
+	LOG_NUM  = 5                 // 当日志条数达到 200条时 触发 写入ali log 请求
 	LOG_SIZE = 2.5 * 1024 * 1024 //当日志大小达到2.5M时 触发 写入 ali log 请求
 )
 
@@ -47,18 +47,18 @@ func NewWriter(url, accessKey, accessSecret, logStore, topic string, isAsync boo
 	//go func() {
 	//	ticker := time.NewTicker(time.Duration(60) * time.Second)
 	//	defer ticker.Stop()
-		//for {
-		//	select {
-		//	case <-ticker.C:
-		//		if len(w.log.Logs) > 0 {
-		//			w.DoWrite()
-		//		}
-		//	case <-ctx.Done():
-		//		if len(w.log.Logs) > 0 {
-		//			w.DoWrite()
-		//		}
-		//	}
-		//}
+	//for {
+	//	select {
+	//	case <-ticker.C:
+	//		if len(w.log.Logs) > 0 {
+	//			w.DoWrite()
+	//		}
+	//	case <-ctx.Done():
+	//		if len(w.log.Logs) > 0 {
+	//			w.DoWrite()
+	//		}
+	//	}
+	//}
 	//}()
 	return w, nil
 }
@@ -69,49 +69,38 @@ func (w *Writer) SetClient(client LogClient) {
 
 func (w *Writer) Write(log []byte) (int, error) {
 	w.lock.Lock()
+	defer w.lock.Unlock()
 	newLog := &pb.Log{
 		Time: proto.Uint32(uint32(time.Now().Unix())),
 	}
-	var logDataInf interface{}
-	err := json.Unmarshal(log, &logDataInf)
+	var logData = make(map[string]interface{})
+	err := json.Unmarshal(log, &logData)
 	if err != nil {
-		w.lock.Unlock()
-		return 0, err
+		return 0, errors.New("log is not json map[string]string: " + err.Error())
 	}
-	if logData, ok := logDataInf.(map[string]interface{}); ok {
-		for k, v := range logData {
-			content := &pb.Log_Content{
-				Key:   proto.String(k),
-				Value: proto.String(fmt.Sprint(v)),
-			}
-			newLog.Contents = append(newLog.Contents, content)
+	for k, v := range logData {
+		content := &pb.Log_Content{
+			Key:   proto.String(k),
+			Value: proto.String(fmt.Sprint(v)),
 		}
-	} else {
-		w.lock.Unlock()
-		return 0, errors.New("log is not json map[string]string")
+		newLog.Contents = append(newLog.Contents, content)
 	}
 	w.log.Logs = append(w.log.Logs, newLog)
 	aliLogBytes, _ := proto.Marshal(w.log)
 	//ali_log 官方文档: 日志一次写入条数超过4096条 或大小超过3M, 超过则写入失败
 	if len(w.log.Logs) > 0 && !w.isAsync {
-		w.lock.Unlock()
 		w.DoWrite()
 		return 0, nil
 	}
 	if w.isAsync && (len(w.log.Logs)+1 >= LOG_NUM || len(aliLogBytes) > LOG_SIZE) {
-		w.lock.Unlock()
 		w.DoWrite()
 		return 0, nil
 	}
-
-	w.lock.Unlock()
 	return os.Stdout.Write(log)
 }
 
 func (w *Writer) DoWrite() {
-	w.lock.Lock()
 	n := copyAndEmpty(w.log)
-	w.lock.Unlock()
 	logdata, _ := proto.Marshal(n)
 	sendLog(w, &logdata, 0)
 	return

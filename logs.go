@@ -87,10 +87,10 @@ func (l logger) SetOut(out io.Writer) {
 	l.entry.Logger.Out = out
 }
 
-func (l logger) SetHook(hookType, topic, network, logStore string) {
+func (l logger) SetHook(hookType, topic, network, logStore, accessKey, accessKeySecret string) {
 	if hookType == "aliyun" {
 		hook, err := aliyun.NewHook(network,
-			"LTAIFOAIBKqTwUJG", "RwPnlI0sEVh9aAOOCtWgBWt2HGK1Tx", logStore, topic, false)
+			accessKey, accessKeySecret, logStore, topic, false)
 		if err != nil {
 			l.entry.Logger.Error("Unable to connect to local aliyun daemon")
 		} else {
@@ -216,9 +216,9 @@ func SetOut(out io.Writer) {
 	baseLogger.entry.Logger.Out = out
 }
 
-func SetHook(hookType, topic, network, logStore string) {
+func SetHook(hookType, topic, network, logStore, accessKey, accessKeySecret string) {
 	if hookType == "aliyun" {
-		hook, err := aliyun.NewHook(network, "LTAIFOAIBKqTwUJG", "RwPnlI0sEVh9aAOOCtWgBWt2HGK1Tx", logStore, topic, false)
+		hook, err := aliyun.NewHook(network, accessKey, accessKeySecret, logStore, topic, false)
 		if err != nil {
 			baseLogger.Error("Unable to connect to local aliyun daemon")
 		} else {
@@ -315,6 +315,7 @@ func Panic(args ...interface{}) {
 func Panicln(args ...interface{}) {
 	baseLogger.sourced().Panicln(args...)
 }
+
 func selfDir() string {
 	path, _ := filepath.Abs(os.Args[0])
 	return filepath.Dir(path)
