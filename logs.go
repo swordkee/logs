@@ -4,9 +4,9 @@ import (
 	"f.in/v/logs/hooks/file"
 	"fmt"
 	"github.com/sirupsen/logrus"
-	rsyslog "github.com/sirupsen/logrus/hooks/syslog"
+	//rsyslog "github.com/sirupsen/logrus/hooks/syslog"
 	"io"
-	"log/syslog"
+	//"log/syslog"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -96,14 +96,14 @@ func (l logger) SetHook(hookType, topic, network, logStore, accessKey, accessKey
 		} else {
 			l.entry.Logger.AddHook(hook)
 		}
-	}
-	if hookType == "syslog" {
-		hook, err := rsyslog.NewSyslogHook("tcp", network, syslog.LOG_INFO, topic)
-		if err != nil {
-			l.entry.Logger.Error("Unable to connect to local syslog daemon")
-		} else {
-			l.entry.Logger.AddHook(hook)
-		}
+	//}
+	//if hookType == "syslog" {
+	//	hook, err := rsyslog.NewSyslogHook("tcp", network, syslog.LOG_INFO, topic)
+	//	if err != nil {
+	//		l.entry.Logger.Error("Unable to connect to local syslog daemon")
+	//	} else {
+	//		l.entry.Logger.AddHook(hook)
+	//	}
 	} else if hookType == "files" {
 		l.entry.Logger.AddHook(file.NewFileHook(selfDir() + "/log/" + topic + ".log"))
 	}
@@ -225,14 +225,14 @@ func SetHook(hookType, topic, network, logStore, accessKey, accessKeySecret stri
 			baseLogger.entry.Logger.AddHook(hook)
 		}
 	}
-	if hookType == "syslog" {
-		hook, err := rsyslog.NewSyslogHook("tcp", network, syslog.LOG_INFO, topic)
-		if err != nil {
-			baseLogger.Error("Unable to connect to local syslog daemon")
-		} else {
-			baseLogger.entry.Logger.AddHook(hook)
-		}
-	}
+	//if hookType == "syslog" {
+	//	hook, err := rsyslog.NewSyslogHook("tcp", network, syslog.LOG_INFO, topic)
+	//	if err != nil {
+	//		baseLogger.Error("Unable to connect to local syslog daemon")
+	//	} else {
+	//		baseLogger.entry.Logger.AddHook(hook)
+	//	}
+	//}
 	if hookType == "files" {
 		baseLogger.entry.Logger.AddHook(file.NewFileHook(selfDir() + "/log/" + topic + ".log"))
 	}
