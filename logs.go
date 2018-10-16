@@ -1,17 +1,17 @@
 package logs
 
 import (
-	"f.in/v/logs/hooks/file"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"github.com/swordkee/logs/hooks/file"
 	//rsyslog "github.com/sirupsen/logrus/hooks/syslog"
+	"github.com/swordkee/logs/hooks/aliyun"
 	"io"
 	//"log/syslog"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
-	"f.in/v/logs/hooks/aliyun"
 )
 
 // Level describes the log severity level.
@@ -96,14 +96,14 @@ func (l logger) SetHook(hookType, topic, network, logStore, accessKey, accessKey
 		} else {
 			l.entry.Logger.AddHook(hook)
 		}
-	//}
-	//if hookType == "syslog" {
-	//	hook, err := rsyslog.NewSyslogHook("tcp", network, syslog.LOG_INFO, topic)
-	//	if err != nil {
-	//		l.entry.Logger.Error("Unable to connect to local syslog daemon")
-	//	} else {
-	//		l.entry.Logger.AddHook(hook)
-	//	}
+		//}
+		//if hookType == "syslog" {
+		//	hook, err := rsyslog.NewSyslogHook("tcp", network, syslog.LOG_INFO, topic)
+		//	if err != nil {
+		//		l.entry.Logger.Error("Unable to connect to local syslog daemon")
+		//	} else {
+		//		l.entry.Logger.AddHook(hook)
+		//	}
 	} else if hookType == "files" {
 		l.entry.Logger.AddHook(file.NewFileHook(selfDir() + "/log/" + topic + ".log"))
 	}

@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/golang/protobuf/proto"
+	"github.com/swordkee/logs/hooks/aliyun/pb"
+	"os"
 	"sync"
 	"time"
-	"f.in/v/logs/hooks/aliyun/pb"
-	"github.com/golang/protobuf/proto"
-	"os"
 )
 
 const (
